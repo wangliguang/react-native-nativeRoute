@@ -2,7 +2,6 @@
 import { NativeModules } from 'react-native';
 
 const { RNNativeRoute } = NativeModules;
-
 const XCRoute = RNNativeRoute;
 
 function push(pageName, params) {
