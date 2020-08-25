@@ -4,38 +4,44 @@ import { NativeModules } from 'react-native';
 const { RNNativeRoute } = NativeModules;
 const XCRoute = RNNativeRoute;
 
-function push(pageName, params) {
-    console.log('页面跳转：' + pageName);
+if (!XCRoute) {
+    throw '尚未link原生代码';
+}
+
+
+function push(pageName, params = {}) {
+    console.log('路由 === push：', pageName, params);
     return XCRoute.push(pageName, params);
 }
 
 function pop(pageName) {
+    console.log('路由 === pop：', pageName);
     XCRoute.pop(pageName);
 }
 
-/**
- * 重置路由到首页
- * @param tabName 首页的哪个tab
- * @param pageName 回到首页后，立马哪个页面
- * @param params
- */
 function backTo(tabName, pageName = '', params = {}) {
+    console.log('路由 === backTo：', tab, pageName, params);
     XCRoute.backTo(tabName, pageName, params);
 }
 
 function replace(pageName, params) {
+    console.log('路由 === replace：', pageName, params);
     return XCRoute.replace(pageName, params);
 }
 
 function sendEvent(callbackId, params) {
+    console.log('路由 === callback：', callbackId, params);
     XCRoute.sendEvent(callbackId, params);
 }
 
-function getRouters() {
-    return XCRoute.getRouters();
+async function getRouters() {
+    const routers = XCRoute.getRouters();
+    console.log('路由 === getRouters', routers);
+    return routers;
 }
 
 function setRightDrawPopEnabled(enable) {
+    console.log('路由 === setRightDrawPopEnabled', enable);
     return XCRoute.setRightDrawPopEnabled(enable);
 }
 
