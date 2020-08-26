@@ -213,19 +213,19 @@ RN路由(指navigation)通过监听的方式可以给页面增加`willFocus/didF
 `pageId`是在Native跳转便自动携带的。为了简化写法，这块建议统一放在高阶或hook里
 ```javascript
 // 页面销毁时，记得调用`this.willFocusSubscription.remove()`将监听销毁
-this.willFocusSubscription = DeviceEventEmitter.addListener(`willFocus_${this.props.pageId}`, () => {
+this.willFocusSubscription = DeviceEventEmitter.addListener(`willFocus_${this.props.params.pageId}`, () => {
         
 });
 // 页面销毁时，记得调用`this.didFocusSubscription.remove()`将监听销毁
-this.didFocusSubscription = DeviceEventEmitter.addListener(`didFocus_${this.props.pageId}`, () => {
+this.didFocusSubscription = DeviceEventEmitter.addListener(`didFocus_${this.props.params.pageId}`, () => {
   this.refCompose.componentDidFocus && this.refCompose.componentDidFocus();
 });
 // 页面销毁时，记得调用`this.willBlurSubscription.remove()`将监听销毁
-this.willBlurSubscription = DeviceEventEmitter.addListener(`willBlur_${this.props.pageId}`, () => {
+this.willBlurSubscription = DeviceEventEmitter.addListener(`willBlur_${this.params.props.pageId}`, () => {
   this.refCompose.componentWillBlur && this.refCompose.componentWillBlur() ;
 });
 // 页面销毁时，记得调用`this.didBlurSubscription.remove()`将监听销毁
-this.didBlurSubscription = DeviceEventEmitter.addListener(`didBlur_${this.props.pageId}`, () => {
+this.didBlurSubscription = DeviceEventEmitter.addListener(`didBlur_${this.params.props.pageId}`, () => {
   this.refCompose.componentDidBlur && this.refCompose.componentDidBlur();
 });
 ```
