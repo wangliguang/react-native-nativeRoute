@@ -113,12 +113,45 @@ compile project(':react-native-native-route')
 
 #### android
 
-## API
+## 使用
 
-### 导入
+### 1. 路由注册
+
+后续用到的路由名必须是`registerComponent`的第一个参数
+
+```javascript
+import { AppRegistry } from 'react-native';
+import APage from './pages/A';
+import BPage from './pages/B';
+import CPage from './pages/C';
+
+AppRegistry.registerComponent('APage', () => APage);
+AppRegistry.registerComponent('BPage', () => BPage);
+AppRegistry.registerComponent('CPage', () => CPage);
+```
+
+### 3. 跳转
+切记：回调里的参数都放在对象中
 ```javascript
 import ROUTE from 'react-native-native-route';
+
+ROUTE.push('APage', {
+    name: 'xxx',
+    callback: ({ userId }) => {}
+});
 ```
+
+### 3. 获取路由参数
+被放到`props.params`中, 执行回调的`callbackId`和用于注册生命周期的`pageId`也都在这里面
+```javascript
+funnction APage(props) {
+    const params = props.params;
+}
+```
+
+
+## API
+
 ### ROUTE.push
 
 如若设置回调，给params赋值`callback`字段即可，并且回调参数只能以对象的方式接收，比如：`({ userId }) => {}`，错误示例：`(userId) => {}`
@@ -203,3 +236,7 @@ this.didBlurSubscription = DeviceEventEmitter.addListener(`didBlur_${this.props.
 
 ### 底部分栏的支持
 
+## TODO
+
+- [ ] html的跳转
+- [ ] scheme的跳转
