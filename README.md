@@ -1,31 +1,66 @@
 
 # react-native-native-route
 
-混合RN项目纯Native路由方案，同时支持纯navigation路由
+## 概念说明
 
-在纯RN项目中，只需维护RN路由，但在混合RN项目需要同时维护两套路由栈：RN路由栈和Native路由栈，这就比较坑了。为了让开发者更加专注于业务，我们决定将路由给统一，统一交给Native处理。
+### 纯RN(没有接入导航器)
 
+app中所有的页面都是RN页面，没有Native页面
+
+### 混合RN(没有接入导航器)
+
+app中有RN页面也有Native页面
+
+## 介绍
+
+给纯RN app和混合RN app提供一套纯Native路由解决方案
+
+
+## 背景
+
+在纯RN项目中，若使用navigation做路由，
+
+1. 配置麻烦，并且navigation的文档对国内开发者并不是那么友好
+2. 若未来转混合需要对路由进行重构
+3. 在开发中需要把路由对象层层传递给子组件，子组件才能跳转
+
+在混合RN项目中，若即使用navigation路由又使用Native路由
+
+1. 需要同时维护两个路由栈，有很多的坑，说多了都是泪
+2. RN开发和Native开发需要频繁的沟通，增加沟通成本
+
+为了让开发者更加专注于业务和增强路由的扩展性，我们决定将路由给统一，统一交给Native处理
+
+## 优势
+
+- 跳转随时使用，不需要多层级传递路由对象
+- 因为基于Native路由，所以Native路由能做的事情，该路由也都可以做，比如scheme和网页的跳转等
+- 基于该路由纯RN app可以无缝转入混合
+- RN本身提供有Fast Refresh来帮助开发者进行页面调试，，但若层级过深，就会失效。而该路由直接在调试页面刷新即可看到变化，无需再做跳转进入指定页面，调试神奇呀
+- 若接入该路由，但还是想使用navigation的路由方式跳转，同样支持
+
+## 劣势
+
+- 不提供导航栏，需自定义
+- 不提供底部分栏，需按照demo自己实现
+- 启动图使用`react-native-splash-screen`，但用法上需要按照我们的demo做些小小的改造
 
 
 ## 原理
 
-纯RN路由其实是RN页面在单个`VC/Activity`(后续统称容器)之间进行跳转，纯Native路由跟纯原生开发一样是多个容器之间进行跳转，即每个React页面用单独的容器承载。基于这种机制，我们需要用`AppRegistry.registerComponent`注册每个RN页面。
+navigation路由其实是RN页面在单个`VC/Activity`(后续统称容器)之间进行跳转，纯Native路由跟纯原生开发一样是多个容器之间进行跳转，即每个React页面用单独的容器承载。基于这种机制，我们需要用`AppRegistry.registerComponent`注册每个RN页面。
 
-
+**PS：使用该路由后，页面跳转就是多个容器的跳转，而不是RN页面都在同一个容器中跳转**，接入我们路由后，依然使用navigation跳转除外
 
 有朋友可能会担心不同容器承载不同的React页面，页面直接的数据共享/参数传递/页面回调等如何处理。下面一一解答：
 
 ### 数据共享问题
 
-首先我们要了解一个RN特性，在同一个bridge下，js环境的数据是可以共享的。在该路由下，虽然使用了多个容器，但始终创建了一个bridge，因此页面之间的数据共享不成问题，可以正常使用redux等状态管理工具
-
-
+首先我们要了解一个RN特性，在同一个bridge下即同一个js环境下，数据是可以共享的。在该路由下，虽然使用了多个容器，但始终创建了一个bridge，因此页面之间的数据共享不成问题，可以正常使用redux等状态管理工具
 
 ### 参数传递
 
 原生跳转RN页面，官方已提供参数传递接口
-
-
 
 ### 页面回调
 
@@ -33,13 +68,9 @@
 
 为啥要让Native发送通知，而不是直接RN发送通知，这是为未来的多bridge做准备。点击了解[RN的多bridge设计](https://blog.csdn.net/gg_ios/article/details/102455637)
 
-
-
-## QA
+### QA
 
 有其他问题欢迎提issue
-
-
 
 
 ## 安装
@@ -70,29 +101,36 @@
         	include ':react-native-native-route'
         	project(':react-native-native-route').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-native-route/android')
     ```
+    
 3. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
   ```
-      compile project(':react-native-native-route')
+compile project(':react-native-native-route')
   ```
+
+### 单容器加载更改为多容器加载
+
+#### iOS
+
+#### android
 
 ## API
 
 ### 导入
-​```javascript
+```javascript
 import ROUTE from 'react-native-native-route';
-  ```
+```
 ### ROUTE.push
 
 如若设置回调，给params赋值`callback`字段即可，并且回调参数只能以对象的方式接收，比如：`({ userId }) => {}`，错误示例：`(userId) => {}`
-```javascript
+​```javascript
 push(pageName: string, params: any = {}): void;
-```
+  ```
 
 ### ROUTE.pop
-```javascript
+​```javascript
 // pageName不传即返回上一级，否则返回指定页面
 pop(pageName?: string): void;
-```
+  ```
 
 ### ROUTE.backTo
 回首页，共两种用法
@@ -159,13 +197,9 @@ this.didBlurSubscription = DeviceEventEmitter.addListener(`didBlur_${this.props.
 });
 ```
 
+### 设置启动图
 
+基于[react-native-splash-screen](https://github.com/crazycodeboy/react-native-splash-screen)
 
-## 优势
+### 底部分栏的支持
 
-- 跳转随时使用，不需要多层级传递路由对象
-- RN提供有Fast Refresh来帮助开发者进行页面调试，，但若层级过深，就会失效。而该因为每个页面都是一个VC/Activity，所以直接在当前页面reload刷新即可。不用回到首页，再一级级今天当前页面，调试神器呀
-
-## 劣势
-
-- 待补充
